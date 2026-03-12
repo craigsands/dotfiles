@@ -6,6 +6,7 @@ brew "common-fate/granted/granted"
 brew "gh"
 brew "git"
 brew "glab"
+brew "lazygit"
 brew "uv"
 
 # Editor
@@ -16,6 +17,9 @@ brew "yazi"
 
 # Terminal
 cask "ghostty"
+
+# Shell
+brew "zoxide"
 
 # Utilities
 brew "jq"
