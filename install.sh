@@ -52,6 +52,22 @@ install_cursor_config() {
     local cursor_dir="$HOME/Library/Application Support/Cursor/User"
     mkdir -p "$cursor_dir"
     link_config "$DOTFILES_DIR/cursor/settings.json" "$cursor_dir/settings.json"
+
+    if command -v cursor &>/dev/null; then
+        if ! cursor --list-extensions 2>/dev/null | grep -q "wroyca.modus"; then
+            info "Installing Modus theme extension from VSIX..."
+            local vsix="/tmp/wroyca.modus.vsix"
+            curl -sL "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/wroyca/vsextensions/modus/latest/vspackage" \
+                -o "${vsix}.gz"
+            gunzip -f "${vsix}.gz"
+            cursor --install-extension "$vsix"
+            rm -f "$vsix"
+        else
+            info "Modus theme extension already installed"
+        fi
+    else
+        info "Cursor CLI not found, skipping extension install"
+    fi
 }
 
 # Zed configuration
