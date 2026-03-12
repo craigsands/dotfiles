@@ -57,6 +57,10 @@ Sidebar only (Preferences > Themes > Custom):
 | Presence indication | `#006300` |
 | Notifications | `#a60000` |
 
+### Chrome
+
+See `chrome/README.md` for Dark Reader extension settings.
+
 ### macOS
 
 Use Light appearance.
