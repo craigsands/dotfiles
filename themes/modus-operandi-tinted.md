@@ -65,6 +65,17 @@ Sidebar only (Preferences > Themes > Custom):
 | Presence indication | `#006300` |
 | Notifications | `#a60000` |
 
+### GitLab
+
+Profile > Preferences > Diffs (https://gitlab.com/-/profile/preferences):
+
+| Field | Hex | Description |
+|-------|-----|-------------|
+| Color for removed lines | `#f5d0d0` | Warm rose |
+| Color for added lines | `#c4edcc` | Sage green |
+
+Theme is controlled by Dark Reader (see `chrome/README.md`).
+
 ### Chrome
 
 See `chrome/README.md` for Dark Reader extension settings.
