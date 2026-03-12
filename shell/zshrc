@@ -1,0 +1,19 @@
+# Dotfiles shell extras
+# Sourced from ~/.zshrc
+
+# Homebrew
+if [[ -f /opt/homebrew/bin/brew ]] && ! type brew &>/dev/null; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+
+# Aliases
+alias ll="ls -la"
+
+# Yazi shell wrapper - changes CWD on exit
+function y() {
+	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
+	command yazi "$@" --cwd-file="$tmp"
+	IFS= read -r -d '' cwd < "$tmp"
+	[ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd"
+	rm -f -- "$tmp"
+}
