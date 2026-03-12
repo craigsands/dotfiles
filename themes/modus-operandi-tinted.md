@@ -24,7 +24,15 @@ theme = Modus Operandi Tinted
 
 ### Cursor
 
-Install extension: `wroyca.modus`
+The `wroyca.modus` extension is not available in Cursor's marketplace and must be
+installed from VSIX downloaded from the VS Code marketplace:
+
+```bash
+curl -sL "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/wroyca/vsextensions/modus/latest/vspackage" \
+  -o /tmp/wroyca.modus.vsix.gz
+gunzip /tmp/wroyca.modus.vsix.gz
+cursor --install-extension /tmp/wroyca.modus.vsix
+```
 
 ```json
 {
