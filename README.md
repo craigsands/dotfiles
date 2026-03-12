@@ -18,7 +18,7 @@ cd ~/code/craigsands/dotfiles
 | `cursor/` | Cursor editor settings |
 | `chrome/` | Chrome browser settings (Dark Reader) |
 | `zed/` | Zed editor settings (AI disabled, for Windows) |
-| `shell/` | Zsh configuration (includes yazi `y` wrapper) |
+| `shell/` | Zsh configuration (zoxide, yazi `y` wrapper) |
 | `git/` | Global gitignore |
 | `themes/` | Color scheme documentation |
 | `macos/` | macOS system preferences |
