@@ -1,0 +1,12 @@
+{
+  "disable_ai": true,
+  "ensure_final_newline_on_save": true,
+  "format_on_save": "on",
+  "hard_tabs": false,
+  "remove_trailing_whitespace_on_save": true,
+  "theme": {
+    "dark": "Modus Vivendi Tinted",
+    "light": "Modus Operandi Tinted",
+    "mode": "light"
+  }
+}
