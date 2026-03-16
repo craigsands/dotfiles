@@ -12,10 +12,9 @@ cd ~/code/craigsands/dotfiles
 
 ## What's Included
 
-| Directory | Purpose |
-|-----------|---------|
+| Path | Purpose |
+|------|---------|
 | `bin/` | Scripts (`toggle-theme`) |
-| `Brewfile` | Homebrew packages |
 | `chrome/` | Chrome browser settings (Dark Reader) |
 | `cursor/` | Cursor editor settings |
 | `ghostty/` | Ghostty terminal configuration |
@@ -24,6 +23,7 @@ cd ~/code/craigsands/dotfiles
 | `shell/` | Zsh configuration (zoxide, yazi `y` wrapper) |
 | `themes/` | Color scheme documentation |
 | `zed/` | Zed editor settings (AI disabled, for Windows) |
+| `Brewfile` | Homebrew packages |
 
 ## Color Scheme
 
