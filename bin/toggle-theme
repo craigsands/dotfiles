@@ -6,8 +6,8 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LIGHT_THEME="Modus Operandi Tinted"
 DARK_THEME="Modus Vivendi Tinted"
 
-GHOSTTY_CONFIG="$HOME/.config/ghostty/config"
 CURSOR_SETTINGS="$HOME/Library/Application Support/Cursor/User/settings.json"
+GHOSTTY_CONFIG="$HOME/.config/ghostty/config"
 ZED_SETTINGS="$HOME/.config/zed/settings.json"
 WALLPAPER_DIR="$DOTFILES_DIR/macos/wallpapers"
 
@@ -46,19 +46,6 @@ set_macos() {
     fi
 }
 
-set_ghostty() {
-    local mode="$1" theme
-    [[ "$mode" == "dark" ]] && theme="$DARK_THEME" || theme="$LIGHT_THEME"
-
-    if [[ -f "$GHOSTTY_CONFIG" ]]; then
-        sed -i '' "s/^theme = .*/theme = $theme/" "$GHOSTTY_CONFIG"
-        pkill -USR2 ghostty 2>/dev/null || true
-        info "Ghostty -> $theme"
-    else
-        info "Ghostty config not found, skipping"
-    fi
-}
-
 set_cursor() {
     local mode="$1" theme tmp
     [[ "$mode" == "dark" ]] && theme="$DARK_THEME" || theme="$LIGHT_THEME"
@@ -70,6 +57,19 @@ set_cursor() {
         info "Cursor -> $theme"
     else
         info "Cursor settings not found, skipping"
+    fi
+}
+
+set_ghostty() {
+    local mode="$1" theme
+    [[ "$mode" == "dark" ]] && theme="$DARK_THEME" || theme="$LIGHT_THEME"
+
+    if [[ -f "$GHOSTTY_CONFIG" ]]; then
+        sed -i '' "s/^theme = .*/theme = $theme/" "$GHOSTTY_CONFIG"
+        pkill -USR2 ghostty 2>/dev/null || true
+        info "Ghostty -> $theme"
+    else
+        info "Ghostty config not found, skipping"
     fi
 }
 
@@ -130,8 +130,8 @@ main() {
     echo "Switching to $target mode" >&2
 
     set_macos "$target"
-    set_ghostty "$target"
     set_cursor "$target"
+    set_ghostty "$target"
     set_zed "$target"
 
     echo "Done." >&2
