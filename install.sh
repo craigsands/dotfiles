@@ -22,11 +22,11 @@ install_brew_packages() {
     brew bundle --file="$DOTFILES_DIR/Brewfile"
 }
 
-# Symlink a config file
-link_config() {
+# Copy a config file from the dotfiles repo to its target location
+copy_config() {
     local src="$1"
     local dest="$2"
-    
+
     if [[ -L "$dest" ]]; then
         info "Removing existing symlink: $dest"
         rm "$dest"
@@ -34,16 +34,10 @@ link_config() {
         info "Backing up existing file: $dest -> $dest.backup"
         mv "$dest" "$dest.backup"
     fi
-    
-    mkdir -p "$(dirname "$dest")"
-    ln -s "$src" "$dest"
-    info "Linked: $dest -> $src"
-}
 
-# Ghostty configuration
-install_ghostty_config() {
-    info "Installing Ghostty config..."
-    link_config "$DOTFILES_DIR/ghostty/config" "$HOME/.config/ghostty/config"
+    mkdir -p "$(dirname "$dest")"
+    cp "$src" "$dest"
+    info "Copied: $src -> $dest"
 }
 
 # Cursor configuration
@@ -51,7 +45,7 @@ install_cursor_config() {
     info "Installing Cursor config..."
     local cursor_dir="$HOME/Library/Application Support/Cursor/User"
     mkdir -p "$cursor_dir"
-    link_config "$DOTFILES_DIR/cursor/settings.json" "$cursor_dir/settings.json"
+    copy_config "$DOTFILES_DIR/cursor/settings.json" "$cursor_dir/settings.json"
 
     if command -v cursor &>/dev/null; then
         if ! cursor --list-extensions 2>/dev/null | grep -q "wroyca.modus"; then
@@ -70,17 +64,16 @@ install_cursor_config() {
     fi
 }
 
-# Zed configuration
-install_zed_config() {
-    info "Installing Zed config..."
-    mkdir -p "$HOME/.config/zed"
-    link_config "$DOTFILES_DIR/zed/settings.json" "$HOME/.config/zed/settings.json"
+# Ghostty configuration
+install_ghostty_config() {
+    info "Installing Ghostty config..."
+    copy_config "$DOTFILES_DIR/ghostty/config" "$HOME/.config/ghostty/config"
 }
 
 # Git global ignore
 install_git_config() {
     info "Installing global gitignore..."
-    
+
     if ! grep -q "dotfiles/git/gitignore_global" "$HOME/.gitconfig" 2>/dev/null; then
         echo "" >> "$HOME/.gitconfig"
         echo "[core]" >> "$HOME/.gitconfig"
@@ -89,6 +82,12 @@ install_git_config() {
     else
         info "Excludesfile already in ~/.gitconfig"
     fi
+}
+
+# macOS preferences
+install_macos_config() {
+    info "Applying macOS preferences..."
+    source "$DOTFILES_DIR/macos/defaults.sh"
 }
 
 # Shell configuration
@@ -105,53 +104,55 @@ install_shell_config() {
     fi
 }
 
-# macOS preferences
-install_macos_config() {
-    info "Applying macOS preferences..."
-    source "$DOTFILES_DIR/macos/defaults.sh"
+# Zed configuration
+install_zed_config() {
+    info "Installing Zed config..."
+    mkdir -p "$HOME/.config/zed"
+    copy_config "$DOTFILES_DIR/zed/settings.json" "$HOME/.config/zed/settings.json"
 }
 
 # Main
 main() {
     local component="${1:-all}"
-    
+
     case "$component" in
         all)
             install_homebrew
             install_brew_packages
-            install_ghostty_config
             install_cursor_config
+            install_ghostty_config
             install_git_config
-            install_shell_config
             install_macos_config
+            install_shell_config
+            install_zed_config
             ;;
         brew)
             install_homebrew
             install_brew_packages
             ;;
-        ghostty)
-            install_ghostty_config
-            ;;
         cursor)
             install_cursor_config
             ;;
-        zed)
-            install_zed_config
+        ghostty)
+            install_ghostty_config
             ;;
         git)
             install_git_config
             ;;
+        macos)
+            install_macos_config
+            ;;
         shell)
             install_shell_config
             ;;
-        macos)
-            install_macos_config
+        zed)
+            install_zed_config
             ;;
         *)
             error "Unknown component: $component"
             ;;
     esac
-    
+
     info "Done!"
 }
 
