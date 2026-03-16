@@ -22,11 +22,11 @@ install_brew_packages() {
     brew bundle --file="$DOTFILES_DIR/Brewfile"
 }
 
-# Symlink a config file
-link_config() {
+# Copy a config file from the dotfiles repo to its target location
+copy_config() {
     local src="$1"
     local dest="$2"
-    
+
     if [[ -L "$dest" ]]; then
         info "Removing existing symlink: $dest"
         rm "$dest"
@@ -34,16 +34,16 @@ link_config() {
         info "Backing up existing file: $dest -> $dest.backup"
         mv "$dest" "$dest.backup"
     fi
-    
+
     mkdir -p "$(dirname "$dest")"
-    ln -s "$src" "$dest"
-    info "Linked: $dest -> $src"
+    cp "$src" "$dest"
+    info "Copied: $src -> $dest"
 }
 
 # Ghostty configuration
 install_ghostty_config() {
     info "Installing Ghostty config..."
-    link_config "$DOTFILES_DIR/ghostty/config" "$HOME/.config/ghostty/config"
+    copy_config "$DOTFILES_DIR/ghostty/config" "$HOME/.config/ghostty/config"
 }
 
 # Cursor configuration
@@ -51,7 +51,7 @@ install_cursor_config() {
     info "Installing Cursor config..."
     local cursor_dir="$HOME/Library/Application Support/Cursor/User"
     mkdir -p "$cursor_dir"
-    link_config "$DOTFILES_DIR/cursor/settings.json" "$cursor_dir/settings.json"
+    copy_config "$DOTFILES_DIR/cursor/settings.json" "$cursor_dir/settings.json"
 
     if command -v cursor &>/dev/null; then
         if ! cursor --list-extensions 2>/dev/null | grep -q "wroyca.modus"; then
@@ -74,7 +74,7 @@ install_cursor_config() {
 install_zed_config() {
     info "Installing Zed config..."
     mkdir -p "$HOME/.config/zed"
-    link_config "$DOTFILES_DIR/zed/settings.json" "$HOME/.config/zed/settings.json"
+    copy_config "$DOTFILES_DIR/zed/settings.json" "$HOME/.config/zed/settings.json"
 }
 
 # Git global ignore

@@ -6,9 +6,9 @@ DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LIGHT_THEME="Modus Operandi Tinted"
 DARK_THEME="Modus Vivendi Tinted"
 
-GHOSTTY_CONFIG="$DOTFILES_DIR/ghostty/config"
-CURSOR_SETTINGS="$DOTFILES_DIR/cursor/settings.json"
-ZED_SETTINGS="$DOTFILES_DIR/zed/settings.json"
+GHOSTTY_CONFIG="$HOME/.config/ghostty/config"
+CURSOR_SETTINGS="$HOME/Library/Application Support/Cursor/User/settings.json"
+ZED_SETTINGS="$HOME/.config/zed/settings.json"
 WALLPAPER_DIR="$DOTFILES_DIR/macos/wallpapers"
 
 info() { echo "  $*" >&2; }
@@ -51,7 +51,7 @@ set_ghostty() {
     [[ "$mode" == "dark" ]] && theme="$DARK_THEME" || theme="$LIGHT_THEME"
 
     if [[ -f "$GHOSTTY_CONFIG" ]]; then
-        printf "theme = %s\n" "$theme" > "$GHOSTTY_CONFIG"
+        sed -i '' "s/^theme = .*/theme = $theme/" "$GHOSTTY_CONFIG"
         pkill -USR2 ghostty 2>/dev/null || true
         info "Ghostty -> $theme"
     else
