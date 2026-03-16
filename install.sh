@@ -80,7 +80,7 @@ install_zed_config() {
 # Git global ignore
 install_git_config() {
     info "Installing global gitignore..."
-    
+
     if ! grep -q "dotfiles/git/gitignore_global" "$HOME/.gitconfig" 2>/dev/null; then
         echo "" >> "$HOME/.gitconfig"
         echo "[core]" >> "$HOME/.gitconfig"
@@ -114,13 +114,14 @@ install_macos_config() {
 # Main
 main() {
     local component="${1:-all}"
-    
+
     case "$component" in
         all)
             install_homebrew
             install_brew_packages
             install_ghostty_config
             install_cursor_config
+            install_zed_config
             install_git_config
             install_shell_config
             install_macos_config
@@ -151,7 +152,7 @@ main() {
             error "Unknown component: $component"
             ;;
     esac
-    
+
     info "Done!"
 }
 

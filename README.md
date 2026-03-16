@@ -49,6 +49,7 @@ Toggles macOS system appearance + wallpaper, Ghostty, Cursor, and Zed in one com
 ```bash
 ./install.sh ghostty
 ./install.sh cursor
+./install.sh zed
 ./install.sh brew
 ./install.sh git
 ./install.sh shell
