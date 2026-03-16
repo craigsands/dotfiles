@@ -15,11 +15,11 @@ brew "vim"
 # File manager
 brew "yazi"
 
-# Terminal
-cask "ghostty"
-
 # Shell
 brew "zoxide"
+
+# Terminal
+cask "ghostty"
 
 # Utilities
 brew "jq"

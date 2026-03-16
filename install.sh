@@ -40,12 +40,6 @@ copy_config() {
     info "Copied: $src -> $dest"
 }
 
-# Ghostty configuration
-install_ghostty_config() {
-    info "Installing Ghostty config..."
-    copy_config "$DOTFILES_DIR/ghostty/config" "$HOME/.config/ghostty/config"
-}
-
 # Cursor configuration
 install_cursor_config() {
     info "Installing Cursor config..."
@@ -70,11 +64,10 @@ install_cursor_config() {
     fi
 }
 
-# Zed configuration
-install_zed_config() {
-    info "Installing Zed config..."
-    mkdir -p "$HOME/.config/zed"
-    copy_config "$DOTFILES_DIR/zed/settings.json" "$HOME/.config/zed/settings.json"
+# Ghostty configuration
+install_ghostty_config() {
+    info "Installing Ghostty config..."
+    copy_config "$DOTFILES_DIR/ghostty/config" "$HOME/.config/ghostty/config"
 }
 
 # Git global ignore
@@ -91,6 +84,12 @@ install_git_config() {
     fi
 }
 
+# macOS preferences
+install_macos_config() {
+    info "Applying macOS preferences..."
+    source "$DOTFILES_DIR/macos/defaults.sh"
+}
+
 # Shell configuration
 install_shell_config() {
     info "Installing shell config..."
@@ -105,10 +104,11 @@ install_shell_config() {
     fi
 }
 
-# macOS preferences
-install_macos_config() {
-    info "Applying macOS preferences..."
-    source "$DOTFILES_DIR/macos/defaults.sh"
+# Zed configuration
+install_zed_config() {
+    info "Installing Zed config..."
+    mkdir -p "$HOME/.config/zed"
+    copy_config "$DOTFILES_DIR/zed/settings.json" "$HOME/.config/zed/settings.json"
 }
 
 # Main
@@ -119,34 +119,34 @@ main() {
         all)
             install_homebrew
             install_brew_packages
-            install_ghostty_config
             install_cursor_config
-            install_zed_config
+            install_ghostty_config
             install_git_config
-            install_shell_config
             install_macos_config
+            install_shell_config
+            install_zed_config
             ;;
         brew)
             install_homebrew
             install_brew_packages
             ;;
-        ghostty)
-            install_ghostty_config
-            ;;
         cursor)
             install_cursor_config
             ;;
-        zed)
-            install_zed_config
+        ghostty)
+            install_ghostty_config
             ;;
         git)
             install_git_config
             ;;
+        macos)
+            install_macos_config
+            ;;
         shell)
             install_shell_config
             ;;
-        macos)
-            install_macos_config
+        zed)
+            install_zed_config
             ;;
         *)
             error "Unknown component: $component"

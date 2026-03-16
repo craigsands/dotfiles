@@ -15,15 +15,15 @@ cd ~/code/craigsands/dotfiles
 | Directory | Purpose |
 |-----------|---------|
 | `bin/` | Scripts (`toggle-theme`) |
-| `ghostty/` | Ghostty terminal configuration |
-| `cursor/` | Cursor editor settings |
-| `chrome/` | Chrome browser settings (Dark Reader) |
-| `zed/` | Zed editor settings (AI disabled, for Windows) |
-| `shell/` | Zsh configuration (zoxide, yazi `y` wrapper) |
-| `git/` | Global gitignore |
-| `themes/` | Color scheme documentation |
-| `macos/` | macOS system preferences |
 | `Brewfile` | Homebrew packages |
+| `chrome/` | Chrome browser settings (Dark Reader) |
+| `cursor/` | Cursor editor settings |
+| `ghostty/` | Ghostty terminal configuration |
+| `git/` | Global gitignore |
+| `macos/` | macOS system preferences |
+| `shell/` | Zsh configuration (zoxide, yazi `y` wrapper) |
+| `themes/` | Color scheme documentation |
+| `zed/` | Zed editor settings (AI disabled, for Windows) |
 
 ## Color Scheme
 
@@ -47,11 +47,11 @@ Toggles macOS system appearance + wallpaper, Ghostty, Cursor, and Zed in one com
 ## Install Specific Components
 
 ```bash
-./install.sh ghostty
-./install.sh cursor
-./install.sh zed
 ./install.sh brew
+./install.sh cursor
+./install.sh ghostty
 ./install.sh git
-./install.sh shell
 ./install.sh macos
+./install.sh shell
+./install.sh zed
 ```
