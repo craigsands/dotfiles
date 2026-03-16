@@ -1,7 +1,7 @@
 {
-    "editor.formatOnSave": true,
-    "editor.insertSpaces": true,
-    "files.insertFinalNewline": true,
-    "files.trimTrailingWhitespace": true,
-    "workbench.colorTheme": "Modus Operandi Tinted"
+  "editor.formatOnSave": true,
+  "editor.insertSpaces": true,
+  "files.insertFinalNewline": true,
+  "files.trimTrailingWhitespace": true,
+  "workbench.colorTheme": "Modus Operandi Tinted"
 }

@@ -14,6 +14,7 @@ cd ~/code/craigsands/dotfiles
 
 | Directory | Purpose |
 |-----------|---------|
+| `bin/` | Scripts (`toggle-theme`) |
 | `ghostty/` | Ghostty terminal configuration |
 | `cursor/` | Cursor editor settings |
 | `chrome/` | Chrome browser settings (Dark Reader) |
@@ -26,9 +27,22 @@ cd ~/code/craigsands/dotfiles
 
 ## Color Scheme
 
-Uses [Modus Operandi Tinted](https://protesilaos.com/emacs/modus-themes) - WCAG AAA compliant, designed to reduce eye strain.
+Uses [Modus themes](https://protesilaos.com/emacs/modus-themes) (WCAG AAA compliant, designed to reduce eye strain):
 
-See `themes/modus-operandi-tinted.md` for palette and app-specific configs.
+- **Light**: Modus Operandi Tinted (`themes/modus-operandi-tinted.md`)
+- **Dark**: Modus Vivendi Tinted (`themes/modus-vivendi-tinted.md`)
+
+## Toggle Light/Dark
+
+```bash
+toggle-theme          # toggle from current mode
+toggle-theme dark     # switch to dark
+toggle-theme light    # switch to light
+```
+
+Toggles macOS system appearance + wallpaper, Ghostty, Cursor, and Zed in one command.
+
+**Note**: Run from macOS Terminal.app or Cursor's terminal, not from within Ghostty.
 
 ## Install Specific Components
 
