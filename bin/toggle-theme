@@ -129,7 +129,10 @@ main() {
 
     echo "Switching to $target mode" >&2
 
+    # System appearance first -- apps detect mode from this
     set_macos "$target"
+
+    # App themes
     set_cursor "$target"
     set_ghostty "$target"
     set_zed "$target"
