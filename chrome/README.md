@@ -4,6 +4,13 @@
 
 [Dark Reader](https://chromewebstore.google.com/detail/dark-reader/eimadpbcbfnmbkopoojfekhnkhdbieeh) extension in Light mode to tint web page backgrounds toward `#fbf7f0`.
 
+### Automation
+
+Enable **"Activate when system dark mode is on"** (three-dot menu next to On/Off)
+so Dark Reader follows macOS appearance, which `toggle-theme` controls.
+
+### Light Mode Settings
+
 | Slider | Value |
 |--------|-------|
 | Mode | Light |
