@@ -1,6 +1,9 @@
 # Dotfiles shell extras
 # Sourced from ~/.zshrc
 
+# Dotfiles bin — ${0:A} resolves this file's absolute path, :h:h walks up to dotfiles/
+export PATH="${0:A:h:h}/bin:$PATH"
+
 # Homebrew
 if [[ -f /opt/homebrew/bin/brew ]] && ! type brew &>/dev/null; then
     eval "$(/opt/homebrew/bin/brew shellenv)"

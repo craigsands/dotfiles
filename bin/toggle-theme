@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+LIGHT_THEME="Modus Operandi Tinted"
+DARK_THEME="Modus Vivendi Tinted"
+
+GHOSTTY_CONFIG="$DOTFILES_DIR/ghostty/config"
+CURSOR_SETTINGS="$DOTFILES_DIR/cursor/settings.json"
+ZED_SETTINGS="$DOTFILES_DIR/zed/settings.json"
+WALLPAPER_DIR="$DOTFILES_DIR/macos/wallpapers"
+
+info() { echo "  $*" >&2; }
+
+check_ghostty_terminal() {
+    if [[ "${TERM_PROGRAM:-}" == "ghostty" ]]; then
+        echo "Error: toggle-theme cannot reload Ghostty from within Ghostty." >&2
+        echo "Run this from macOS Terminal.app or Cursor's integrated terminal." >&2
+        exit 1
+    fi
+}
+
+detect_mode() {
+    if defaults read NSGlobalDomain AppleInterfaceStyle &>/dev/null; then
+        echo "dark"
+    else
+        echo "light"
+    fi
+}
+
+set_macos() {
+    local mode="$1"
+    if [[ "$mode" == "dark" ]]; then
+        osascript -e 'tell application "System Events" to tell appearance preferences to set dark mode to true'
+    else
+        osascript -e 'tell application "System Events" to tell appearance preferences to set dark mode to false'
+    fi
+    info "macOS appearance -> $mode"
+
+    local wallpaper
+    [[ "$mode" == "dark" ]] && wallpaper="modus-vivendi-tinted.png" || wallpaper="modus-operandi-tinted.png"
+    if [[ -f "$WALLPAPER_DIR/$wallpaper" ]]; then
+        osascript -e "tell application \"Finder\" to set desktop picture to POSIX file \"$WALLPAPER_DIR/$wallpaper\""
+        info "macOS wallpaper -> $wallpaper"
+    fi
+}
+
+set_ghostty() {
+    local mode="$1" theme
+    [[ "$mode" == "dark" ]] && theme="$DARK_THEME" || theme="$LIGHT_THEME"
+
+    if [[ -f "$GHOSTTY_CONFIG" ]]; then
+        printf "theme = %s\n" "$theme" > "$GHOSTTY_CONFIG"
+        pkill -USR2 ghostty 2>/dev/null || true
+        info "Ghostty -> $theme"
+    else
+        info "Ghostty config not found, skipping"
+    fi
+}
+
+set_cursor() {
+    local mode="$1" theme tmp
+    [[ "$mode" == "dark" ]] && theme="$DARK_THEME" || theme="$LIGHT_THEME"
+
+    if [[ -f "$CURSOR_SETTINGS" ]]; then
+        tmp="$(mktemp)"
+        jq --arg t "$theme" '.["workbench.colorTheme"] = $t' "$CURSOR_SETTINGS" > "$tmp"
+        mv "$tmp" "$CURSOR_SETTINGS"
+        info "Cursor -> $theme"
+    else
+        info "Cursor settings not found, skipping"
+    fi
+}
+
+set_zed() {
+    local mode="$1" tmp
+
+    if [[ -f "$ZED_SETTINGS" ]]; then
+        tmp="$(mktemp)"
+        jq --arg m "$mode" '.theme.mode = $m' "$ZED_SETTINGS" > "$tmp"
+        mv "$tmp" "$ZED_SETTINGS"
+        info "Zed -> $mode mode"
+    else
+        info "Zed settings not found, skipping"
+    fi
+}
+
+usage() {
+    cat >&2 <<EOF
+Usage: toggle-theme [light|dark]
+
+Toggle macOS system appearance and app themes between
+Modus Operandi Tinted (light) and Modus Vivendi Tinted (dark).
+
+  light    Switch to light mode
+  dark     Switch to dark mode
+  (none)   Toggle from current mode
+
+Apps toggled: macOS, Ghostty, Cursor, Zed
+
+NOTE: Must be run from macOS Terminal.app or Cursor's terminal,
+not from within Ghostty (SIGUSR2 reload does not work from Ghostty's
+own process tree).
+EOF
+    exit 1
+}
+
+main() {
+    if ! command -v jq &>/dev/null; then
+        echo "Error: jq is required. Install with: brew install jq" >&2
+        exit 1
+    fi
+    check_ghostty_terminal
+
+    local target="${1:-}"
+
+    if [[ -z "$target" ]]; then
+        local current
+        current="$(detect_mode)"
+        [[ "$current" == "dark" ]] && target="light" || target="dark"
+    fi
+
+    case "$target" in
+        light|dark) ;;
+        -h|--help) usage ;;
+        *) usage ;;
+    esac
+
+    echo "Switching to $target mode" >&2
+
+    set_macos "$target"
+    set_ghostty "$target"
+    set_cursor "$target"
+    set_zed "$target"
+
+    echo "Done." >&2
+}
+
+main "$@"

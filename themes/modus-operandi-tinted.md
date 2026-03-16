@@ -82,8 +82,5 @@ See `chrome/README.md` for Dark Reader extension settings.
 
 ### macOS
 
-Use Light appearance.
-
-**Wallpaper (manual):**
-1. System Settings > Wallpaper > Custom Color
-2. RGB Sliders: R: 251, G: 247, B: 240
+Use Light appearance. Wallpaper is set automatically by `toggle-theme`
+using `macos/wallpapers/modus-operandi-tinted.png` (`#fbf7f0`).
