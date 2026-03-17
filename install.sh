@@ -130,12 +130,29 @@ install_statusline() {
     info "Copied: claude-statusline -> $target"
     
     # Configure Claude CLI to use it
-    if command -v claude &>/dev/null; then
-        claude config set statusline.command "$target"
-        info "Configured Claude CLI to use statusline"
+    local settings="$HOME/.claude/settings.json"
+    if [[ -f "$settings" ]]; then
+        # Check if statusLine already exists
+        if jq -e '.statusLine' "$settings" >/dev/null 2>&1; then
+            info "statusLine already configured in $settings"
+        else
+            # Add statusLine configuration
+            local tmp=$(mktemp)
+            jq ". + {\"statusLine\": {\"type\": \"command\", \"command\": \"$target\"}}" "$settings" > "$tmp" && mv "$tmp" "$settings"
+            info "Added statusLine configuration to $settings"
+        fi
     else
-        info "Claude CLI not found, skipping configuration"
-        info "Run 'claude config set statusline.command $target' after installing Claude CLI"
+        # Create settings.json with statusLine
+        mkdir -p "$(dirname "$settings")"
+        cat > "$settings" <<EOF
+{
+  "statusLine": {
+    "type": "command",
+    "command": "$target"
+  }
+}
+EOF
+        info "Created $settings with statusLine configuration"
     fi
     
     # Check if ~/.local/bin is in PATH
