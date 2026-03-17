@@ -111,6 +111,40 @@ install_zed_config() {
     copy_config "$DOTFILES_DIR/zed/settings.json" "$HOME/.config/zed/settings.json"
 }
 
+# Claude CLI status line
+install_statusline() {
+    info "Installing Claude CLI status line..."
+    
+    # Create ~/.local/bin if it doesn't exist
+    mkdir -p "$HOME/.local/bin"
+    
+    # Copy the script
+    local target="$HOME/.local/bin/claude-statusline"
+    if [[ -e "$target" ]]; then
+        info "Backing up existing file: $target -> $target.backup"
+        mv "$target" "$target.backup"
+    fi
+    
+    cp "$DOTFILES_DIR/bin/claude-statusline" "$target"
+    chmod +x "$target"
+    info "Copied: claude-statusline -> $target"
+    
+    # Configure Claude CLI to use it
+    if command -v claude &>/dev/null; then
+        claude config set statusline.command "$target"
+        info "Configured Claude CLI to use statusline"
+    else
+        info "Claude CLI not found, skipping configuration"
+        info "Run 'claude config set statusline.command $target' after installing Claude CLI"
+    fi
+    
+    # Check if ~/.local/bin is in PATH
+    if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+        info "Note: Add ~/.local/bin to your PATH by adding this to ~/.zshrc:"
+        info "  export PATH=\"\$HOME/.local/bin:\$PATH\""
+    fi
+}
+
 # Main
 main() {
     local component="${1:-all}"
@@ -124,6 +158,7 @@ main() {
             install_git_config
             install_macos_config
             install_shell_config
+            install_statusline
             install_zed_config
             ;;
         brew)
@@ -144,6 +179,9 @@ main() {
             ;;
         shell)
             install_shell_config
+            ;;
+        statusline)
+            install_statusline
             ;;
         zed)
             install_zed_config

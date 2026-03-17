@@ -60,6 +60,16 @@ Self-documenting status line for Claude CLI that displays:
 
 All configuration, testing instructions, and customization options are documented in the script's header comments. Run `head -n 80 ~/code/craigsands/dotfiles/bin/claude-statusline` to view.
 
+### Install Status Line
+
+```bash
+./install.sh statusline
+```
+
+This will:
+1. Copy the script to `~/.local/bin/claude-statusline`
+2. Configure Claude CLI to use it automatically
+
 ## Install Specific Components
 
 ```bash
@@ -69,5 +79,6 @@ All configuration, testing instructions, and customization options are documente
 ./install.sh git
 ./install.sh macos
 ./install.sh shell
+./install.sh statusline
 ./install.sh zed
 ```
