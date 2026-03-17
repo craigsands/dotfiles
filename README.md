@@ -14,7 +14,7 @@ cd ~/code/craigsands/dotfiles
 
 | Path | Purpose |
 |------|---------|
-| `bin/` | Scripts (`toggle-theme`) |
+| `bin/` | Scripts (`toggle-theme`, `claude-statusline`) |
 | `chrome/` | Chrome browser settings (Dark Reader) |
 | `cursor/` | Cursor editor settings |
 | `ghostty/` | Ghostty terminal configuration |
@@ -44,6 +44,30 @@ Toggles macOS system appearance + wallpaper, Ghostty, Cursor, and Zed in one com
 
 **Note**: Run from macOS Terminal.app or Cursor's terminal, not from within Ghostty.
 
+## Claude CLI Status Line
+
+```bash
+claude-statusline
+```
+
+Two-line informative status display optimized for Modus themes:
+- Visual warnings for expensive models (Opus=magenta, MAX=red)
+- Mode badges: [MAX] (red), [THINK] (magenta)
+- Session start time and active task counter
+- Context window progress bar with color-coded percentage
+- Labeled fields: model, dir, branch, worktree, launched, context, spend, tokens, tasks
+- Cost tracking and token counts with thousand separators
+
+### Install Status Line
+
+```bash
+./install.sh statusline
+```
+
+This will:
+1. Copy the script to `~/.local/bin/claude-statusline`
+2. Add `statusLine` configuration to `~/.claude/settings.json`
+
 ## Install Specific Components
 
 ```bash
@@ -53,5 +77,6 @@ Toggles macOS system appearance + wallpaper, Ghostty, Cursor, and Zed in one com
 ./install.sh git
 ./install.sh macos
 ./install.sh shell
+./install.sh statusline
 ./install.sh zed
 ```

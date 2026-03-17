@@ -111,6 +111,57 @@ install_zed_config() {
     copy_config "$DOTFILES_DIR/zed/settings.json" "$HOME/.config/zed/settings.json"
 }
 
+# Claude CLI status line
+install_statusline() {
+    info "Installing Claude CLI status line..."
+    
+    # Create ~/.local/bin if it doesn't exist
+    mkdir -p "$HOME/.local/bin"
+    
+    # Copy the script
+    local target="$HOME/.local/bin/claude-statusline"
+    if [[ -e "$target" ]]; then
+        info "Backing up existing file: $target -> $target.backup"
+        mv "$target" "$target.backup"
+    fi
+    
+    cp "$DOTFILES_DIR/bin/claude-statusline" "$target"
+    chmod +x "$target"
+    info "Copied: claude-statusline -> $target"
+    
+    # Configure Claude CLI to use it
+    local settings="$HOME/.claude/settings.json"
+    if [[ -f "$settings" ]]; then
+        # Check if statusLine already exists
+        if jq -e '.statusLine' "$settings" >/dev/null 2>&1; then
+            info "statusLine already configured in $settings"
+        else
+            # Add statusLine configuration
+            local tmp=$(mktemp)
+            jq ". + {\"statusLine\": {\"type\": \"command\", \"command\": \"$target\"}}" "$settings" > "$tmp" && mv "$tmp" "$settings"
+            info "Added statusLine configuration to $settings"
+        fi
+    else
+        # Create settings.json with statusLine
+        mkdir -p "$(dirname "$settings")"
+        cat > "$settings" <<EOF
+{
+  "statusLine": {
+    "type": "command",
+    "command": "$target"
+  }
+}
+EOF
+        info "Created $settings with statusLine configuration"
+    fi
+    
+    # Check if ~/.local/bin is in PATH
+    if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+        info "Note: Add ~/.local/bin to your PATH by adding this to ~/.zshrc:"
+        info "  export PATH=\"\$HOME/.local/bin:\$PATH\""
+    fi
+}
+
 # Main
 main() {
     local component="${1:-all}"
@@ -124,6 +175,7 @@ main() {
             install_git_config
             install_macos_config
             install_shell_config
+            install_statusline
             install_zed_config
             ;;
         brew)
@@ -144,6 +196,9 @@ main() {
             ;;
         shell)
             install_shell_config
+            ;;
+        statusline)
+            install_statusline
             ;;
         zed)
             install_zed_config

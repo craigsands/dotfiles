@@ -1,0 +1,236 @@
+#!/bin/bash
+# Claude CLI Status Line
+# ======================
+#
+# Two-line informative status line for Claude CLI optimized for Modus themes.
+#
+# FEATURES
+# --------
+# - Color-coded model names with visual warnings for expensive models
+# - Mode badges: [MAX] (red), [THINK] (magenta)
+# - Two-line layout with labeled fields
+# - Context window progress bar with color-coded percentage
+# - Session metrics: launched time, cost, tokens
+# - Active task counter from transcript parsing
+# - Git branch and directory info
+#
+# COLOR DESIGN
+# ------------
+# Optimized for Modus Operandi Tinted (light) and Modus Vivendi Tinted (dark):
+# - Labels: Cyan (#00538b light / #00d3d0 dark)
+# - Values: Default fg (black light / white dark)
+# - Expensive warnings: Magenta/Red for Opus/MAX/THINK
+# - Separators: Dim (gray)
+#
+# CONFIGURATION
+# -------------
+# Add to ~/.claude/settings.json:
+#    {
+#      "statusLine": {
+#        "type": "command",
+#        "command": "~/.local/bin/claude-statusline"
+#      }
+#    }
+#
+# Or use the install script:
+#    cd ~/code/craigsands/dotfiles && ./install.sh statusline
+#
+# REQUIREMENTS
+# ------------
+# - jq (JSON parser): brew install jq
+# - python3 (for task counter)
+# - ANSI color support in terminal
+# - Claude CLI with status line support
+
+# ── Parse JSON Input ──────────────────────────────────────────────────────────
+
+input=$(cat)
+
+# Basic fields
+MODEL=$(echo "$input" | jq -r '.model.display_name')
+EFFORT=$(echo "$input" | jq -r '.model.effort_level // ""')
+DIR=$(echo "$input" | jq -r '.workspace.current_dir')
+COST=$(echo "$input" | jq -r '.cost.total_cost_usd // 0')
+PCT=$(echo "$input" | jq -r '.context_window.used_percentage // 0' | cut -d. -f1)
+WT_BRANCH=$(echo "$input" | jq -r '.worktree.branch // ""')
+WT_PATH=$(echo "$input" | jq -r '.worktree.path // ""')
+TRANSCRIPT=$(echo "$input" | jq -r '.transcript_path // ""')
+TOK_IN=$(echo "$input" | jq -r '.context_window.total_input_tokens // 0')
+TOK_OUT=$(echo "$input" | jq -r '.context_window.total_output_tokens // 0')
+
+# ── Modus-optimized Color Palette ─────────────────────────────────────────────
+# Colors work well on both Modus Operandi (light #fbf7f0) and Vivendi (dark #0d0e1c)
+
+CYAN='\033[38;5;38m'        # labels (blue-cyan, readable on both themes)
+MAGENTA='\033[38;5;200m'    # expensive warnings (magenta, high contrast)
+RED='\033[38;5;203m'        # critical warnings (red-orange)
+YELLOW='\033[38;5;178m'     # context warning (muted yellow)
+GREEN='\033[38;5;72m'       # context nominal (muted green)
+DEFAULT='\033[39m'          # default foreground (adapts to theme)
+DIM='\033[2m'               # dim gray
+RESET='\033[0m'
+BOLD='\033[1m'
+
+# ── Separator ─────────────────────────────────────────────────────────────────
+S="${DIM} │ ${RESET}"
+
+# ── Session Start Time ────────────────────────────────────────────────────────
+SESSION_START_FMT="UNKNOWN"
+if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
+    BIRTH=$(stat -f %B "$TRANSCRIPT" 2>/dev/null)
+    if [ -n "$BIRTH" ] && [ "$BIRTH" -gt 0 ] 2>/dev/null; then
+        SESSION_START_FMT=$(date -r "$BIRTH" +"%H:%M:%S" 2>/dev/null)
+    fi
+fi
+
+# ── Active Task Count ─────────────────────────────────────────────────────────
+ACTIVE_TASKS=0
+if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
+    ACTIVE_TASKS=$(python3 - "$TRANSCRIPT" <<'PYEOF'
+import json, sys
+
+path = sys.argv[1]
+pending = set()
+try:
+    with open(path) as f:
+        for raw in f:
+            raw = raw.strip()
+            if not raw:
+                continue
+            try:
+                entry = json.loads(raw)
+            except json.JSONDecodeError:
+                continue
+            msg = entry.get("message", entry)
+            content = msg.get("content", [])
+            if isinstance(content, list):
+                for block in content:
+                    if not isinstance(block, dict):
+                        continue
+                    if block.get("type") == "tool_use" and block.get("name") == "Task":
+                        pending.add(block["id"])
+                    elif block.get("type") == "tool_result":
+                        tid = block.get("tool_use_id", "")
+                        pending.discard(tid)
+except Exception:
+    pass
+print(len(pending))
+PYEOF
+    )
+fi
+ACTIVE_TASKS=${ACTIVE_TASKS:-0}
+
+# ── Git Branch ────────────────────────────────────────────────────────────────
+BRANCH=""
+if git -C "$DIR" rev-parse --git-dir > /dev/null 2>&1; then
+    GIT_BRANCH_RAW=$(git -C "$DIR" branch --show-current 2>/dev/null)
+    [ -n "$GIT_BRANCH_RAW" ] && BRANCH="$GIT_BRANCH_RAW"
+fi
+
+# ── Worktree ──────────────────────────────────────────────────────────────────
+WT_LABEL=""
+[ -n "$WT_BRANCH" ] && WT_LABEL="${WT_PATH##*/}(${WT_BRANCH})"
+
+# ── Context Bar ───────────────────────────────────────────────────────────────
+if [ "$PCT" -ge 90 ]; then   BAR_COLOR="$RED"
+elif [ "$PCT" -ge 70 ]; then BAR_COLOR="$YELLOW"
+else                          BAR_COLOR="$GREEN"
+fi
+
+FILLED=$((PCT / 10))
+EMPTY=$((10 - FILLED))
+BAR_FILLED=$(printf "%${FILLED}s" | tr ' ' '▰')
+BAR_EMPTY=$(printf "%${EMPTY}s"   | tr ' ' '▱')
+BAR="${BAR_COLOR}${BAR_FILLED}${DIM}${BAR_EMPTY}${RESET}"
+
+# ── Token Total ───────────────────────────────────────────────────────────────
+TOK_TOTAL=$(( TOK_IN + TOK_OUT ))
+TOK_FMT=$(printf "%d" "$TOK_TOTAL" | awk '{
+    s = $0; r = ""
+    while (length(s) > 3) {
+        r = "," substr(s, length(s)-2) r
+        s = substr(s, 1, length(s)-3)
+    }
+    print s r
+}')
+
+# ── Cost ──────────────────────────────────────────────────────────────────────
+COST_FMT=$(printf '%.4f' "$COST")
+
+# ── Model + Effort + Mode Detection ───────────────────────────────────────────
+SETTINGS="$HOME/.claude/settings.json"
+MODEL_LOWER=$(echo "$MODEL" | tr '[:upper:]' '[:lower:]')
+EFFORT_LOWER=$(echo "$EFFORT" | tr '[:upper:]' '[:lower:]')
+
+# Detect expensive features
+IS_OPUS=0
+IS_MAX=0
+IS_THINKING=0
+
+case "$MODEL_LOWER" in
+    *opus*) IS_OPUS=1 ;;
+    *max*) IS_MAX=1 ;;
+esac
+
+# Check effort level for max mode
+case "$EFFORT_LOWER" in
+    *max*) IS_MAX=1 ;;
+esac
+
+if [ -f "$SETTINGS" ]; then
+    settings_model=$(jq -r '.model // ""' "$SETTINGS" 2>/dev/null | tr '[:upper:]' '[:lower:]')
+    case "$settings_model" in
+        *max*) IS_MAX=1 ;;
+    esac
+    
+    thinking_val=$(jq -r '.thinking // .extendedThinking // .enableThinking // "false"' "$SETTINGS" 2>/dev/null)
+    case "$thinking_val" in
+        true|1|yes|enabled) IS_THINKING=1 ;;
+    esac
+fi
+
+# Build model display with visual warnings
+if [ "$IS_OPUS" = "1" ]; then
+    # Opus: Magenta bold (expensive warning)
+    MODEL_DISPLAY="${MAGENTA}${BOLD}${MODEL}${RESET}"
+elif [ "$IS_MAX" = "1" ]; then
+    # Max: Red bold (expensive warning)
+    MODEL_DISPLAY="${RED}${BOLD}${MODEL}${RESET}"
+else
+    # Sonnet/Haiku: Default with bold
+    MODEL_DISPLAY="${BOLD}${MODEL}${RESET}"
+fi
+
+# Add effort level if present
+if [ -n "$EFFORT" ]; then
+    MODEL_DISPLAY="${MODEL_DISPLAY} ${DIM}[${EFFORT}]${RESET}"
+fi
+
+# Add mode badges
+if [ "$IS_MAX" = "1" ]; then
+    MODEL_DISPLAY="${MODEL_DISPLAY} ${RED}${BOLD}[MAX]${RESET}"
+fi
+if [ "$IS_THINKING" = "1" ]; then
+    MODEL_DISPLAY="${MODEL_DISPLAY} ${MAGENTA}${BOLD}[THINK]${RESET}"
+fi
+
+# ══════════════════════════════════════════════════════════════════════════════
+# LINE 1 — model [effort] [modes] · dir · branch · worktree
+# ══════════════════════════════════════════════════════════════════════════════
+LINE1="${CYAN}model${RESET} ${MODEL_DISPLAY}${S}${CYAN}dir${RESET} ${DEFAULT}${DIR##*/}${RESET}"
+
+[ -n "$BRANCH" ] && LINE1="${LINE1}${S}${CYAN}branch${RESET} ${DEFAULT}${BRANCH}${RESET}"
+[ -n "$WT_LABEL" ] && LINE1="${LINE1}${S}${CYAN}worktree${RESET} ${DEFAULT}${WT_LABEL}${RESET}"
+
+printf "%b\n" "${LINE1}"
+
+# ══════════════════════════════════════════════════════════════════════════════
+# LINE 2 — launched · context · spend · tokens · tasks (if any)
+# ══════════════════════════════════════════════════════════════════════════════
+LINE2="${CYAN}launched${RESET} ${DEFAULT}${SESSION_START_FMT}${RESET}${S}${CYAN}context${RESET} ${BAR} ${BAR_COLOR}${PCT}%${RESET}${S}${CYAN}spend${RESET} ${DEFAULT}\$${COST_FMT}${RESET}${S}${CYAN}tokens${RESET} ${DEFAULT}${TOK_FMT}${RESET}"
+
+if [ "$ACTIVE_TASKS" -gt 0 ]; then
+    LINE2="${LINE2}${S}${CYAN}tasks${RESET} ${YELLOW}${ACTIVE_TASKS} active${RESET}"
+fi
+
+printf "%b\n" "${LINE2}"
