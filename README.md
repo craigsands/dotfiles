@@ -50,15 +50,13 @@ Toggles macOS system appearance + wallpaper, Ghostty, Cursor, and Zed in one com
 claude-statusline
 ```
 
-Self-documenting status line for Claude CLI that displays:
+Displays:
 - Color-coded model names (Opus=orange, Sonnet=green, Haiku=yellow)
 - Mode badges ([MAX], [THINK])
 - Context window progress bar with percentage
 - Current directory and git branch
 - Agent name, worktree name (if applicable)
 - Cost, token count, duration
-
-All configuration, testing instructions, and customization options are documented in the script's header comments. Run `head -n 80 ~/code/craigsands/dotfiles/bin/claude-statusline` to view.
 
 ### Install Status Line
 
