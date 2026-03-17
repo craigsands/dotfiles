@@ -14,7 +14,7 @@ cd ~/code/craigsands/dotfiles
 
 | Path | Purpose |
 |------|---------|
-| `bin/` | Scripts (`toggle-theme`) |
+| `bin/` | Scripts (`toggle-theme`, `claude-statusline`) |
 | `chrome/` | Chrome browser settings (Dark Reader) |
 | `cursor/` | Cursor editor settings |
 | `ghostty/` | Ghostty terminal configuration |
@@ -43,6 +43,22 @@ toggle-theme light    # switch to light
 Toggles macOS system appearance + wallpaper, Ghostty, Cursor, and Zed in one command.
 
 **Note**: Run from macOS Terminal.app or Cursor's terminal, not from within Ghostty.
+
+## Claude CLI Status Line
+
+```bash
+claude-statusline
+```
+
+Self-documenting status line for Claude CLI that displays:
+- Color-coded model names (Opus=orange, Sonnet=green, Haiku=yellow)
+- Mode badges ([MAX], [THINK])
+- Context window progress bar with percentage
+- Current directory and git branch
+- Agent name, worktree name (if applicable)
+- Cost, token count, duration
+
+All configuration, testing instructions, and customization options are documented in the script's header comments. Run `head -n 80 ~/code/craigsands/dotfiles/bin/claude-statusline` to view.
 
 ## Install Specific Components
 
