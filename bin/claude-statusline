@@ -35,10 +35,29 @@
 # Or use the install script:
 #    cd ~/code/craigsands/dotfiles && ./install.sh statusline
 #
+# OUTPUT
+# ------
+# Line 1: model [effort] [modes] · dir · branch · worktree
+# Line 2: launched · context · spend · tokens · [tasks]
+#
+# Context bar colors:
+#   Green  = < 70% used (nominal)
+#   Yellow = 70–89% (approaching limit)
+#   Red    = 90%+ (critical)
+#
+# Context display:
+#   ███░░░░░░░ 30%  — real data from API or transcript
+#   ···             — no data yet (fresh session, pre-first-message)
+#
+# Model display colors:
+#   Default  = Sonnet / Haiku (standard cost)
+#   Magenta  = Opus (expensive)
+#   Red bold = Max mode (expensive)
+#   + [MAX] / [THINK] badges when those modes are active
+#
 # REQUIREMENTS
 # ------------
 # - jq (JSON parser): brew install jq
-# - python3 (for task counter)
 # - ANSI color support in terminal
 # - Claude CLI with status line support
 
@@ -51,12 +70,45 @@ MODEL=$(echo "$input" | jq -r '.model.display_name')
 EFFORT=$(echo "$input" | jq -r '.model.effort_level // ""')
 DIR=$(echo "$input" | jq -r '.workspace.current_dir')
 COST=$(echo "$input" | jq -r '.cost.total_cost_usd // 0')
-PCT=$(echo "$input" | jq -r '.context_window.used_percentage // 0' | cut -d. -f1)
 WT_BRANCH=$(echo "$input" | jq -r '.worktree.branch // ""')
 WT_PATH=$(echo "$input" | jq -r '.worktree.path // ""')
 TRANSCRIPT=$(echo "$input" | jq -r '.transcript_path // ""')
+
+# Get token counts from API (may be 0 or null)
 TOK_IN=$(echo "$input" | jq -r '.context_window.total_input_tokens // 0')
 TOK_OUT=$(echo "$input" | jq -r '.context_window.total_output_tokens // 0')
+CONTEXT_SIZE=$(echo "$input" | jq -r '.context_window.context_window_size // 200000')
+
+# Try to get percentage from API first
+PCT_RAW=$(echo "$input" | jq -r '.context_window.used_percentage // "null"')
+
+# If API doesn't provide percentage and we have a transcript, calculate from transcript
+if [ "$PCT_RAW" = "null" ] && [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
+    # Use last assistant message's total tokens — each API call sends full context
+    ACTUAL_TOKENS=$(jq -rs '
+      [.[] | select(.type == "assistant" and .message.usage != null)] | last |
+      if . != null then
+        (.message.usage.input_tokens // 0) +
+        (.message.usage.cache_creation_input_tokens // 0) +
+        (.message.usage.cache_read_input_tokens // 0) +
+        (.message.usage.output_tokens // 0)
+      else 0 end
+    ' "$TRANSCRIPT" 2>/dev/null)
+    ACTUAL_TOKENS=${ACTUAL_TOKENS:-0}
+    if [ "$ACTUAL_TOKENS" -gt 0 ]; then
+        PCT=$(( ACTUAL_TOKENS * 100 / CONTEXT_SIZE ))
+        TOK_IN=$ACTUAL_TOKENS
+        TOK_OUT=0
+        CONTEXT_KNOWN=1
+    else
+        PCT=0
+        CONTEXT_KNOWN=0
+    fi
+else
+    PCT=$(echo "$PCT_RAW" | cut -d. -f1)
+    [ "$PCT" = "null" ] && PCT=0
+    [ "$PCT" -gt 0 ] && CONTEXT_KNOWN=1 || CONTEXT_KNOWN=0
+fi
 
 # ── Modus-optimized Color Palette ─────────────────────────────────────────────
 # Colors work well on both Modus Operandi (light #fbf7f0) and Vivendi (dark #0d0e1c)
@@ -86,37 +138,13 @@ fi
 # ── Active Task Count ─────────────────────────────────────────────────────────
 ACTIVE_TASKS=0
 if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
-    ACTIVE_TASKS=$(python3 - "$TRANSCRIPT" <<'PYEOF'
-import json, sys
-
-path = sys.argv[1]
-pending = set()
-try:
-    with open(path) as f:
-        for raw in f:
-            raw = raw.strip()
-            if not raw:
-                continue
-            try:
-                entry = json.loads(raw)
-            except json.JSONDecodeError:
-                continue
-            msg = entry.get("message", entry)
-            content = msg.get("content", [])
-            if isinstance(content, list):
-                for block in content:
-                    if not isinstance(block, dict):
-                        continue
-                    if block.get("type") == "tool_use" and block.get("name") == "Task":
-                        pending.add(block["id"])
-                    elif block.get("type") == "tool_result":
-                        tid = block.get("tool_use_id", "")
-                        pending.discard(tid)
-except Exception:
-    pass
-print(len(pending))
-PYEOF
-    )
+    ACTIVE_TASKS=$(jq -rs '
+      [.[] | (.message.content? // []) | .[]? |
+        select(.type == "tool_use" and .name == "Task") | .id] as $task_ids |
+      [.[] | (.message.content? // []) | .[]? |
+        select(.type == "tool_result") | .tool_use_id] as $resolved |
+      [$task_ids[] | select(. as $id | $resolved | any(. == $id) | not)] | length
+    ' "$TRANSCRIPT" 2>/dev/null)
 fi
 ACTIVE_TASKS=${ACTIVE_TASKS:-0}
 
@@ -139,8 +167,8 @@ fi
 
 FILLED=$((PCT / 10))
 EMPTY=$((10 - FILLED))
-BAR_FILLED=$(printf "%${FILLED}s" | tr ' ' '▰')
-BAR_EMPTY=$(printf "%${EMPTY}s"   | tr ' ' '▱')
+BAR_FILLED=$(printf "%${FILLED}s" | tr ' ' '█')
+BAR_EMPTY=$(printf "%${EMPTY}s"   | tr ' ' '░')
 BAR="${BAR_COLOR}${BAR_FILLED}${DIM}${BAR_EMPTY}${RESET}"
 
 # ── Token Total ───────────────────────────────────────────────────────────────
@@ -227,7 +255,12 @@ printf "%b\n" "${LINE1}"
 # ══════════════════════════════════════════════════════════════════════════════
 # LINE 2 — launched · context · spend · tokens · tasks (if any)
 # ══════════════════════════════════════════════════════════════════════════════
-LINE2="${CYAN}launched${RESET} ${DEFAULT}${SESSION_START_FMT}${RESET}${S}${CYAN}context${RESET} ${BAR} ${BAR_COLOR}${PCT}%${RESET}${S}${CYAN}spend${RESET} ${DEFAULT}\$${COST_FMT}${RESET}${S}${CYAN}tokens${RESET} ${DEFAULT}${TOK_FMT}${RESET}"
+if [ "$CONTEXT_KNOWN" = "1" ]; then
+    CONTEXT_DISPLAY="${BAR} ${BAR_COLOR}${PCT}%${RESET}"
+else
+    CONTEXT_DISPLAY="${DIM}···${RESET}"
+fi
+LINE2="${CYAN}launched${RESET} ${DEFAULT}${SESSION_START_FMT}${RESET}${S}${CYAN}context${RESET} ${CONTEXT_DISPLAY}${S}${CYAN}spend${RESET} ${DEFAULT}\$${COST_FMT}${RESET}${S}${CYAN}tokens${RESET} ${DEFAULT}${TOK_FMT}${RESET}"
 
 if [ "$ACTIVE_TASKS" -gt 0 ]; then
     LINE2="${LINE2}${S}${CYAN}tasks${RESET} ${YELLOW}${ACTIVE_TASKS} active${RESET}"
