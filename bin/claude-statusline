@@ -35,6 +35,26 @@
 # Or use the install script:
 #    cd ~/code/craigsands/dotfiles && ./install.sh statusline
 #
+# OUTPUT
+# ------
+# Line 1: model [effort] [modes] · dir · branch · worktree
+# Line 2: launched · context · spend · tokens · [tasks]
+#
+# Context bar colors:
+#   Green  = < 70% used (nominal)
+#   Yellow = 70–89% (approaching limit)
+#   Red    = 90%+ (critical)
+#
+# Context display:
+#   ███░░░░░░░ 30%  — real data from API or transcript
+#   ···             — no data yet (fresh session, pre-first-message)
+#
+# Model display colors:
+#   Default  = Sonnet / Haiku (standard cost)
+#   Magenta  = Opus (expensive)
+#   Red bold = Max mode (expensive)
+#   + [MAX] / [THINK] badges when those modes are active
+#
 # REQUIREMENTS
 # ------------
 # - jq (JSON parser): brew install jq
