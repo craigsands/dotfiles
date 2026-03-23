@@ -77,6 +77,7 @@ This will:
 ./install.sh git
 ./install.sh macos
 ./install.sh shell
+./install.sh rtk
 ./install.sh statusline
 ./install.sh zed
 ```
