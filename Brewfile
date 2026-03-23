@@ -21,6 +21,9 @@ brew "zoxide"
 # Terminal
 cask "ghostty"
 
+# Token optimization
+brew "rtk"
+
 # Utilities
 brew "jq"
 brew "yq"

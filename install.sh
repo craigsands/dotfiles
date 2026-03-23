@@ -104,6 +104,17 @@ install_shell_config() {
     fi
 }
 
+# RTK (Rust Token Killer) - LLM token optimization
+install_rtk_config() {
+    info "Installing RTK hook..."
+    if command -v rtk &>/dev/null; then
+        rtk init --global
+        info "RTK hook installed. Restart Claude Code for it to take effect."
+    else
+        info "rtk not found, skipping hook install (run ./install.sh brew first)"
+    fi
+}
+
 # Zed configuration
 install_zed_config() {
     info "Installing Zed config..."
@@ -112,7 +123,7 @@ install_zed_config() {
 }
 
 # Claude CLI status line
-install_statusline() {
+install_statusline_config() {
     info "Installing Claude CLI status line..."
     
     # Create ~/.local/bin if it doesn't exist
@@ -175,7 +186,8 @@ main() {
             install_git_config
             install_macos_config
             install_shell_config
-            install_statusline
+            install_rtk_config
+            install_statusline_config
             install_zed_config
             ;;
         brew)
@@ -197,8 +209,11 @@ main() {
         shell)
             install_shell_config
             ;;
+        rtk)
+            install_rtk_config
+            ;;
         statusline)
-            install_statusline
+            install_statusline_config
             ;;
         zed)
             install_zed_config
