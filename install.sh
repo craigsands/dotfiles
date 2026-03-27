@@ -115,6 +115,44 @@ install_rtk_config() {
     fi
 }
 
+# Claude hooks
+install_claude_hooks() {
+    info "Installing Claude hooks..."
+
+    # Install mdformat via uv
+    if ! command -v mdformat &>/dev/null; then
+        info "Installing mdformat..."
+        uv tool install mdformat
+    else
+        info "mdformat already installed"
+    fi
+
+    local target="$HOME/.local/bin/md-format"
+    mkdir -p "$HOME/.local/bin"
+
+    if [[ -e "$target" ]]; then
+        info "Backing up existing file: $target -> $target.backup"
+        mv "$target" "$target.backup"
+    fi
+
+    cp "$DOTFILES_DIR/bin/md-format" "$target"
+    chmod +x "$target"
+    info "Copied: md-format -> $target"
+
+    local settings="$HOME/.claude/settings.json"
+    mkdir -p "$(dirname "$settings")"
+    [[ ! -f "$settings" ]] && echo '{}' > "$settings"
+
+    local tmp
+    tmp=$(mktemp)
+    jq --arg cmd "$target" '
+      .hooks.PostToolUse = [
+        {"matcher": "Edit|Write", "hooks": [{"type": "command", "command": $cmd}]}
+      ]
+    ' "$settings" > "$tmp" && mv "$tmp" "$settings"
+    info "Registered md-format hook in $settings"
+}
+
 # Zed configuration
 install_zed_config() {
     info "Installing Zed config..."
@@ -188,6 +226,7 @@ main() {
             install_shell_config
             install_rtk_config
             install_statusline_config
+            install_claude_hooks
             install_zed_config
             ;;
         brew)
@@ -214,6 +253,9 @@ main() {
             ;;
         statusline)
             install_statusline_config
+            ;;
+        hooks)
+            install_claude_hooks
             ;;
         zed)
             install_zed_config
