@@ -28,7 +28,7 @@
 #    {
 #      "statusLine": {
 #        "type": "command",
-#        "command": "~/.local/bin/claude-statusline"
+#        "command": "~/.claude/statusline-command.sh"
 #      }
 #    }
 #
@@ -129,9 +129,14 @@ S="${DIM} │ ${RESET}"
 # ── Session Start Time ────────────────────────────────────────────────────────
 SESSION_START_FMT="UNKNOWN"
 if [ -n "$TRANSCRIPT" ] && [ -f "$TRANSCRIPT" ]; then
-    BIRTH=$(stat -f %B "$TRANSCRIPT" 2>/dev/null)
+    # Use stat -c %Y on Linux/WSL, stat -f %B on macOS
+    if stat -c %Y "$TRANSCRIPT" >/dev/null 2>&1; then
+        BIRTH=$(stat -c %Y "$TRANSCRIPT" 2>/dev/null)
+    else
+        BIRTH=$(stat -f %B "$TRANSCRIPT" 2>/dev/null)
+    fi
     if [ -n "$BIRTH" ] && [ "$BIRTH" -gt 0 ] 2>/dev/null; then
-        SESSION_START_FMT=$(date -r "$BIRTH" +"%H:%M:%S" 2>/dev/null)
+        SESSION_START_FMT=$(date -d @"$BIRTH" +"%H:%M:%S" 2>/dev/null || date -r "$BIRTH" +"%H:%M:%S" 2>/dev/null)
     fi
 fi
 
@@ -165,11 +170,18 @@ elif [ "$PCT" -ge 70 ]; then BAR_COLOR="$YELLOW"
 else                          BAR_COLOR="$GREEN"
 fi
 
-FILLED=$((PCT / 10))
-EMPTY=$((10 - FILLED))
-BAR_FILLED=$(printf "%${FILLED}s" | tr ' ' '█')
-BAR_EMPTY=$(printf "%${EMPTY}s"   | tr ' ' '░')
-BAR="${BAR_COLOR}${BAR_FILLED}${DIM}${BAR_EMPTY}${RESET}"
+BAR_WIDTH=10
+FILLED=$((PCT * BAR_WIDTH / 100))
+EMPTY=$((BAR_WIDTH - FILLED))
+
+# Build progress bar: printf -v creates a run of spaces, then
+# ${var// /█} replaces each space with a block character
+BAR=""
+[ "$FILLED" -gt 0 ] && printf -v FILL "%${FILLED}s" && BAR="${FILL// /█}"
+[ "$EMPTY" -gt 0 ] && printf -v PAD "%${EMPTY}s" && BAR="${BAR}${DIM}${PAD// /░}${RESET}"
+[ "$FILLED" -eq 0 ] && [ "$EMPTY" -eq 0 ] && BAR="${DIM}···${RESET}"
+
+BAR="${BAR_COLOR}${BAR}${RESET}"
 
 # ── Token Total ───────────────────────────────────────────────────────────────
 TOK_TOTAL=$(( TOK_IN + TOK_OUT ))
@@ -210,7 +222,7 @@ if [ -f "$SETTINGS" ]; then
     case "$settings_model" in
         *max*) IS_MAX=1 ;;
     esac
-    
+
     thinking_val=$(jq -r '.thinking // .extendedThinking // .enableThinking // "false"' "$SETTINGS" 2>/dev/null)
     case "$thinking_val" in
         true|1|yes|enabled) IS_THINKING=1 ;;

@@ -163,21 +163,21 @@ install_zed_config() {
 # Claude CLI status line
 install_statusline_config() {
     info "Installing Claude CLI status line..."
-    
-    # Create ~/.local/bin if it doesn't exist
-    mkdir -p "$HOME/.local/bin"
-    
+
+    # Create ~/.claude if it doesn't exist
+    mkdir -p "$HOME/.claude"
+
     # Copy the script
-    local target="$HOME/.local/bin/claude-statusline"
+    local target="$HOME/.claude/statusline-command.sh"
     if [[ -e "$target" ]]; then
         info "Backing up existing file: $target -> $target.backup"
         mv "$target" "$target.backup"
     fi
-    
-    cp "$DOTFILES_DIR/bin/claude-statusline" "$target"
+
+    cp "$DOTFILES_DIR/bin/statusline-command.sh" "$target"
     chmod +x "$target"
-    info "Copied: claude-statusline -> $target"
-    
+    info "Copied: statusline-command.sh-> $target"
+
     # Configure Claude CLI to use it
     local settings="$HOME/.claude/settings.json"
     if [[ -f "$settings" ]]; then
@@ -203,7 +203,7 @@ install_statusline_config() {
 EOF
         info "Created $settings with statusLine configuration"
     fi
-    
+
     # Check if ~/.local/bin is in PATH
     if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
         info "Note: Add ~/.local/bin to your PATH by adding this to ~/.zshrc:"
