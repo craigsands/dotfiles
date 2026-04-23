@@ -14,15 +14,16 @@ cd ~/code/craigsands/dotfiles
 
 | Path | Purpose |
 |------|---------|
-| `bin/` | Scripts (`toggle-theme`, `claude-statusline`) |
+| `bin/` | Scripts (`toggle-theme`, `statusline-command.sh`) |
 | `chrome/` | Chrome browser settings (Dark Reader) |
+| `claude/` | Claude editor settings |
 | `cursor/` | Cursor editor settings |
 | `ghostty/` | Ghostty terminal configuration |
 | `git/` | Global gitignore |
 | `macos/` | macOS system preferences |
 | `shell/` | Zsh configuration (zoxide, yazi `y` wrapper) |
 | `themes/` | Color scheme documentation |
-| `zed/` | Zed editor settings (AI disabled, for Windows) |
+| `zed/` | Zed editor settings |
 | `Brewfile` | Homebrew packages |
 
 ## Color Scheme
@@ -47,7 +48,7 @@ Toggles macOS system appearance + wallpaper, Ghostty, Cursor, and Zed in one com
 ## Claude CLI Status Line
 
 ```bash
-claude-statusline
+statusline-command.sh
 ```
 
 Two-line informative status display optimized for Modus themes:
@@ -65,13 +66,14 @@ Two-line informative status display optimized for Modus themes:
 ```
 
 This will:
-1. Copy the script to `~/.local/bin/claude-statusline`
+1. Copy the script to `~/.local/bin/statusline-command.sh`
 2. Add `statusLine` configuration to `~/.claude/settings.json`
 
 ## Install Specific Components
 
 ```bash
 ./install.sh brew
+./install.sh claude
 ./install.sh cursor
 ./install.sh ghostty
 ./install.sh git
