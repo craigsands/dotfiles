@@ -14,7 +14,7 @@ cd ~/code/craigsands/dotfiles
 
 | Path | Purpose |
 |------|---------|
-| `bin/` | Scripts (`toggle-theme`, `statusline-command`) |
+| `bin/` | Scripts (`toggle-theme`, `statusline-command.sh`) |
 | `chrome/` | Chrome browser settings (Dark Reader) |
 | `claude/` | Claude editor settings |
 | `cursor/` | Cursor editor settings |
