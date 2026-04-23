@@ -1,5 +1,4 @@
 {
-  "disable_ai": true,
   "ensure_final_newline_on_save": true,
   "format_on_save": "on",
   "hard_tabs": false,
@@ -7,6 +6,6 @@
   "theme": {
     "dark": "Modus Vivendi Tinted",
     "light": "Modus Operandi Tinted",
-    "mode": "light"
-  }
+    "mode": "light",
+  },
 }
