@@ -101,15 +101,7 @@ install_macos_config() {
 # Shell configuration
 install_shell_config() {
     info "Installing shell config..."
-    local source_line='[[ -f ~/code/craigsands/dotfiles/shell/zshrc ]] && source ~/code/craigsands/dotfiles/shell/zshrc'
-    if ! grep -q "dotfiles/shell/zshrc" "$HOME/.zshrc" 2>/dev/null; then
-        echo "" >> "$HOME/.zshrc"
-        echo "# Dotfiles extras" >> "$HOME/.zshrc"
-        echo "$source_line" >> "$HOME/.zshrc"
-        info "Added source line to ~/.zshrc"
-    else
-        info "Source line already in ~/.zshrc"
-    fi
+    stow --dir="$DOTFILES_DIR" --target="$HOME" --restow "shell"
 }
 
 # RTK (Rust Token Killer) - LLM token optimization
