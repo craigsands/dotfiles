@@ -14,7 +14,7 @@ cd ~/code/craigsands/dotfiles
 
 | Path | Purpose |
 |------|---------|
-| `bin/` | Scripts (`toggle-theme`, `statusline-command.sh`) |
+| `bin/` | Scripts (`toggle-theme`) |
 | `chrome/` | Chrome browser settings (Dark Reader) |
 | `claude/` | Claude editor settings |
 | `cursor/` | Cursor editor settings |
@@ -59,16 +59,6 @@ Two-line informative status display optimized for Modus themes:
 - Labeled fields: model, dir, branch, worktree, launched, context, spend, tokens, tasks
 - Cost tracking and token counts with thousand separators
 
-### Install Status Line
-
-```bash
-./install.sh statusline
-```
-
-This will:
-1. Copy the script to `~/.local/bin/statusline-command.sh`
-2. Add `statusLine` configuration to `~/.claude/settings.json`
-
 ## Install Specific Components
 
 ```bash
@@ -80,6 +70,5 @@ This will:
 ./install.sh macos
 ./install.sh shell
 ./install.sh rtk
-./install.sh statusline
 ./install.sh zed
 ```

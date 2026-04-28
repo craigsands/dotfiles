@@ -32,9 +32,6 @@
 #      }
 #    }
 #
-# Or use the install script:
-#    cd ~/code/craigsands/dotfiles && ./install.sh statusline
-#
 # OUTPUT
 # ------
 # Line 1: model [effort] [modes] · dir · branch · worktree
