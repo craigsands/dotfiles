@@ -65,11 +65,9 @@ install_cursor_config() {
 }
 
 # CLaude configuration
-install_claude_config() {
-    info "Installing Claude config..."
-    local claude_dir="$HOME/.claude"
-    mkdir -p "$claude_dir"
-    copy_config "$DOTFILES_DIR/claude/settings.json" "$claude_dir/settings.json"
+config_claude() {
+    info "Configuring Claude Code..."
+
 }
 
 # Ghostty configuration
@@ -227,7 +225,7 @@ main() {
         all)
             install_homebrew
             install_brew_packages
-            install_claude_config
+            config_claude
             install_cursor_config
             install_ghostty_config
             install_git_config
@@ -243,7 +241,7 @@ main() {
             install_brew_packages
             ;;
         claude)
-            install_claude_config
+            config_claude
             ;;
         cursor)
             install_cursor_config

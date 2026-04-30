@@ -1,18 +1,28 @@
-# Dotfiles shell extras
-# Sourced from ~/.zshrc
-
-# Dotfiles bin — ${0:A} resolves this file's absolute path, :h:h walks up to dotfiles/
-export PATH="${0:A:h:h}/bin:$PATH"
+# Init order: homebrew -> path -> completions -> tool hooks -> prompt -> aliases/functions
 
 # Homebrew
 if [[ -f /opt/homebrew/bin/brew ]] && ! type brew &>/dev/null; then
     eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
+# PATH
+export PATH="$HOME/.local/bin:$PATH"
+
+# Completions - rebuild cache once per day
+autoload -Uz compinit
+if [ "$(find ~/.zcompdump -mtime +1)" ] ; then
+    compinit
+else
+    compinit -C
+fi
+
 # zoxide - smarter cd (z/zi commands)
 if command -v zoxide &>/dev/null; then
     eval "$(zoxide init zsh)"
 fi
+
+# Prompt
+source "$HOME/.local/bin/prompt.sh"
 
 # Aliases
 alias ll="ls -la"
