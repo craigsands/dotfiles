@@ -16,6 +16,7 @@ brew "vim"
 brew "yazi"
 
 # Shell
+brew "stow"
 brew "zoxide"
 
 # Terminal
