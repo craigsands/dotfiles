@@ -109,15 +109,7 @@ install_macos_config() {
 # Shell configuration
 install_shell_config() {
     info "Installing shell config..."
-    local source_line='[[ -f ~/code/craigsands/dotfiles/shell/zshrc ]] && source ~/code/craigsands/dotfiles/shell/zshrc'
-    if ! grep -q "dotfiles/shell/zshrc" "$HOME/.zshrc" 2>/dev/null; then
-        echo "" >> "$HOME/.zshrc"
-        echo "# Dotfiles extras" >> "$HOME/.zshrc"
-        echo "$source_line" >> "$HOME/.zshrc"
-        info "Added source line to ~/.zshrc"
-    else
-        info "Source line already in ~/.zshrc"
-    fi
+    stow --dir="$DOTFILES_DIR" --target="$HOME" --restow "shell"
 }
 
 # RTK (Rust Token Killer) - LLM token optimization
@@ -176,57 +168,6 @@ install_zed_config() {
     copy_config "$DOTFILES_DIR/zed/settings.json" "$HOME/.config/zed/settings.json"
 }
 
-# Claude CLI status line
-install_statusline_config() {
-    info "Installing Claude CLI status line..."
-
-    # Create ~/.claude if it doesn't exist
-    mkdir -p "$HOME/.claude"
-
-    # Copy the script
-    local target="$HOME/.claude/statusline-command.sh"
-    if [[ -e "$target" ]]; then
-        info "Backing up existing file: $target -> $target.backup"
-        mv "$target" "$target.backup"
-    fi
-
-    cp "$DOTFILES_DIR/bin/statusline-command.sh" "$target"
-    chmod +x "$target"
-    info "Copied: statusline-command.sh-> $target"
-
-    # Configure Claude CLI to use it
-    local settings="$HOME/.claude/settings.json"
-    if [[ -f "$settings" ]]; then
-        # Check if statusLine already exists
-        if jq -e '.statusLine' "$settings" >/dev/null 2>&1; then
-            info "statusLine already configured in $settings"
-        else
-            # Add statusLine configuration
-            local tmp=$(mktemp)
-            jq ". + {\"statusLine\": {\"type\": \"command\", \"command\": \"$target\"}}" "$settings" > "$tmp" && mv "$tmp" "$settings"
-            info "Added statusLine configuration to $settings"
-        fi
-    else
-        # Create settings.json with statusLine
-        mkdir -p "$(dirname "$settings")"
-        cat > "$settings" <<EOF
-{
-  "statusLine": {
-    "type": "command",
-    "command": "$target"
-  }
-}
-EOF
-        info "Created $settings with statusLine configuration"
-    fi
-
-    # Check if ~/.local/bin is in PATH
-    if [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
-        info "Note: Add ~/.local/bin to your PATH by adding this to ~/.zshrc:"
-        info "  export PATH=\"\$HOME/.local/bin:\$PATH\""
-    fi
-}
-
 # Main
 main() {
     local component="${1:-all}"
@@ -243,7 +184,6 @@ main() {
             install_git_config
             install_macos_config
             install_rtk_config
-            install_statusline_config
             install_claude_hooks
             install_zed_config
             ;;
@@ -271,9 +211,6 @@ main() {
             ;;
         rtk)
             install_rtk_config
-            ;;
-        statusline)
-            install_statusline_config
             ;;
         hooks)
             install_claude_hooks
