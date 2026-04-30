@@ -3,6 +3,9 @@ set -euo pipefail
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+# PATH
+export PATH="$HOME/.local/bin:$PATH"
+
 info() { echo "==> $*"; }
 error() { echo "ERROR: $*" >&2; exit 1; }
 
