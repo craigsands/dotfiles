@@ -73,11 +73,11 @@ config_claude() {
     cconf.py env.DISABLE_TELEMETRY 1
     cconf.py attribution.commit ""
     cconf.py attribution.pr ""
-    cconf.py model "haiku"
-    cconf.py statusLine.type "command"
+    cconf.py model haiku
+    cconf.py statusLine.type command
     cconf.py statusLine.command "bash ~/.claude/statusline-command.sh"
-    cconf.py effortLevel "medium"
-    cconf.py showClearContextOnPlanAccept "true"
+    cconf.py effortLevel medium
+    cconf.py showClearContextOnPlanAccept true
 }
 
 # Ghostty configuration
