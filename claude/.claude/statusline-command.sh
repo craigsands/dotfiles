@@ -17,7 +17,7 @@
 # COLOR DESIGN
 # ------------
 # Optimized for Modus Operandi Tinted (light) and Modus Vivendi Tinted (dark):
-# - Labels: Blue (ANSI blue, matches shell)
+# - Labels: Blue (ANSI blue 4, matches shell)
 # - Values: Default fg (black light / white dark)
 # - Expensive warnings: Magenta/Red for Opus/MAX/THINK
 # - Separators: Dim (gray)
@@ -110,7 +110,7 @@ fi
 # ── Modus-optimized Color Palette ─────────────────────────────────────────────
 # Colors work well on both Modus Operandi (light #fbf7f0) and Vivendi (dark #0d0e1c)
 
-BLUE='\033[38;5;38m'        # labels (blue, matches shell)
+BLUE='\033[0;34m'           # labels (ANSI blue 4, matches shell)
 MAGENTA='\033[38;5;200m'    # expensive warnings (magenta, high contrast)
 RED='\033[38;5;203m'        # critical warnings (red-orange)
 YELLOW='\033[38;5;178m'     # context warning (muted yellow)

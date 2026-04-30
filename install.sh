@@ -71,9 +71,11 @@ install_cursor_config() {
 config_claude() {
     info "Installing Claude Code support scripts..."
     stow --dir="$DOTFILES_DIR" --target="$HOME" --restow "claude"
+    chmod +x ~/.local/bin/cconf.py
 
     info "Configuring Claude Code..."
     cconf.py env.DISABLE_TELEMETRY 1
+    cconf.py env.ENABLE_TOOL_SEARCH true
     cconf.py attribution.commit ""
     cconf.py attribution.pr ""
     cconf.py model haiku
@@ -81,6 +83,7 @@ config_claude() {
     cconf.py statusLine.command "bash ~/.claude/statusline-command.sh"
     cconf.py effortLevel medium
     cconf.py showClearContextOnPlanAccept true
+    cconf.py permissions.defaultMode auto
 }
 
 # Ghostty configuration
