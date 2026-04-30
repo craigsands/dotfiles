@@ -66,8 +66,18 @@ install_cursor_config() {
 
 # CLaude configuration
 config_claude() {
-    info "Configuring Claude Code..."
+    info "Installing Claude Code support scripts..."
+    stow --dir="$DOTFILES_DIR" --target="$HOME" --restow "claude"
 
+    info "Configuring Claude Code..."
+    cconf.py env.DISABLE_TELEMETRY 1
+    cconf.py attribution.commit ""
+    cconf.py attribution.pr ""
+    cconf.py model "haiku"
+    cconf.py statusLine.type "command"
+    cconf.py statusLine.command "bash ~/.claude/statusline-command.sh"
+    cconf.py effortLevel "medium"
+    cconf.py showClearContextOnPlanAccept "true"
 }
 
 # Ghostty configuration
@@ -225,12 +235,13 @@ main() {
         all)
             install_homebrew
             install_brew_packages
+            install_shell_config
+
             config_claude
             install_cursor_config
             install_ghostty_config
             install_git_config
             install_macos_config
-            install_shell_config
             install_rtk_config
             install_statusline_config
             install_claude_hooks
