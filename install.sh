@@ -65,38 +65,19 @@ install_cursor_config() {
 }
 
 # CLaude configuration
-install_claude_config() {
-    info "Installing Claude config..."
+config_claude() {
+    info "Installing Claude Code support scripts..."
     stow --dir="$DOTFILES_DIR" --target="$HOME" --restow "claude"
 
-    # Configure Claude CLI statusline
-    info "Configuring statusline..."
-
-    local settings="$HOME/.claude/settings.json"
-    local target="~/.claude/statusline-command.sh"
-    if [[ -f "$settings" ]]; then
-        # Check if statusLine already exists
-        if jq -e '.statusLine' "$settings" >/dev/null 2>&1; then
-            info "statusLine already configured in $settings"
-        else
-            # Add statusLine configuration
-            local tmp=$(mktemp)
-            jq ". + {\"statusLine\": {\"type\": \"command\", \"command\": \"$target\"}}" "$settings" > "$tmp" && mv "$tmp" "$settings"
-            info "Added statusLine configuration to $settings"
-        fi
-    else
-        # Create settings.json with statusLine
-        mkdir -p "$(dirname "$settings")"
-        cat > "$settings" <<EOF
-{
-  "statusLine": {
-    "type": "command",
-    "command": "$target"
-  }
-}
-EOF
-        info "Created $settings with statusLine configuration"
-    fi
+    info "Configuring Claude Code..."
+    cconf.py env.DISABLE_TELEMETRY 1
+    cconf.py attribution.commit ""
+    cconf.py attribution.pr ""
+    cconf.py model haiku
+    cconf.py statusLine.type command
+    cconf.py statusLine.command "bash ~/.claude/statusline-command.sh"
+    cconf.py effortLevel medium
+    cconf.py showClearContextOnPlanAccept true
 }
 
 # Ghostty configuration
@@ -195,12 +176,13 @@ main() {
         all)
             install_homebrew
             install_brew_packages
-            install_claude_config
+            install_shell_config
+
+            config_claude
             install_cursor_config
             install_ghostty_config
             install_git_config
             install_macos_config
-            install_shell_config
             install_rtk_config
             install_claude_hooks
             install_zed_config
@@ -210,7 +192,7 @@ main() {
             install_brew_packages
             ;;
         claude)
-            install_claude_config
+            config_claude
             ;;
         cursor)
             install_cursor_config
