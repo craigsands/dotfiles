@@ -17,7 +17,7 @@
 # COLOR DESIGN
 # ------------
 # Optimized for Modus Operandi Tinted (light) and Modus Vivendi Tinted (dark):
-# - Labels: Cyan (#00538b light / #00d3d0 dark)
+# - Labels: Blue (ANSI blue, matches shell)
 # - Values: Default fg (black light / white dark)
 # - Expensive warnings: Magenta/Red for Opus/MAX/THINK
 # - Separators: Dim (gray)
@@ -110,7 +110,7 @@ fi
 # ── Modus-optimized Color Palette ─────────────────────────────────────────────
 # Colors work well on both Modus Operandi (light #fbf7f0) and Vivendi (dark #0d0e1c)
 
-CYAN='\033[38;5;38m'        # labels (blue-cyan, readable on both themes)
+BLUE='\033[38;5;38m'        # labels (blue, matches shell)
 MAGENTA='\033[38;5;200m'    # expensive warnings (magenta, high contrast)
 RED='\033[38;5;203m'        # critical warnings (red-orange)
 YELLOW='\033[38;5;178m'     # context warning (muted yellow)
@@ -254,10 +254,10 @@ fi
 # ══════════════════════════════════════════════════════════════════════════════
 # LINE 1 — model [effort] [modes] · dir · branch · worktree
 # ══════════════════════════════════════════════════════════════════════════════
-LINE1="${CYAN}model${RESET} ${MODEL_DISPLAY}${S}${CYAN}dir${RESET} ${DEFAULT}${DIR##*/}${RESET}"
+LINE1="${BLUE}model${RESET} ${MODEL_DISPLAY}${S}${BLUE}dir${RESET} ${DEFAULT}${DIR##*/}${RESET}"
 
-[ -n "$BRANCH" ] && LINE1="${LINE1}${S}${CYAN}branch${RESET} ${DEFAULT}${BRANCH}${RESET}"
-[ -n "$WT_LABEL" ] && LINE1="${LINE1}${S}${CYAN}worktree${RESET} ${DEFAULT}${WT_LABEL}${RESET}"
+[ -n "$BRANCH" ] && LINE1="${LINE1}${S}${BLUE}branch${RESET} ${DEFAULT}${BRANCH}${RESET}"
+[ -n "$WT_LABEL" ] && LINE1="${LINE1}${S}${BLUE}worktree${RESET} ${DEFAULT}${WT_LABEL}${RESET}"
 
 printf "%b\n" "${LINE1}"
 
@@ -269,10 +269,10 @@ if [ "$CONTEXT_KNOWN" = "1" ]; then
 else
     CONTEXT_DISPLAY="${DIM}···${RESET}"
 fi
-LINE2="${CYAN}launched${RESET} ${DEFAULT}${SESSION_START_FMT}${RESET}${S}${CYAN}context${RESET} ${CONTEXT_DISPLAY}${S}${CYAN}spend${RESET} ${DEFAULT}\$${COST_FMT}${RESET}${S}${CYAN}tokens${RESET} ${DEFAULT}${TOK_FMT}${RESET}"
+LINE2="${BLUE}launched${RESET} ${DEFAULT}${SESSION_START_FMT}${RESET}${S}${BLUE}context${RESET} ${CONTEXT_DISPLAY}${S}${BLUE}spend${RESET} ${DEFAULT}\$${COST_FMT}${RESET}${S}${BLUE}tokens${RESET} ${DEFAULT}${TOK_FMT}${RESET}"
 
 if [ "$ACTIVE_TASKS" -gt 0 ]; then
-    LINE2="${LINE2}${S}${CYAN}tasks${RESET} ${YELLOW}${ACTIVE_TASKS} active${RESET}"
+    LINE2="${LINE2}${S}${BLUE}tasks${RESET} ${YELLOW}${ACTIVE_TASKS} active${RESET}"
 fi
 
 printf "%b\n" "${LINE2}"
