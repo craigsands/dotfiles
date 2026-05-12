@@ -1,11 +1,31 @@
 {
-  "ensure_final_newline_on_save": true,
-  "format_on_save": "on",
-  "hard_tabs": false,
-  "remove_trailing_whitespace_on_save": true,
-  "theme": {
-    "dark": "Modus Vivendi Tinted",
-    "light": "Modus Operandi Tinted",
-    "mode": "light",
-  },
+    "project_panel": {
+        "dock": "left"
+    },
+    "outline_panel": {
+        "dock": "left"
+    },
+    "collaboration_panel": {
+        "dock": "left"
+    },
+    "git_panel": {
+        "dock": "left"
+    },
+    "telemetry": {
+        "diagnostics": false,
+        "metrics": false
+    },
+    "agent": {
+        "dock": "right"
+    },
+    "autosave": "on_focus_change",
+    "ensure_final_newline_on_save": true,
+    "format_on_save": "on",
+    "hard_tabs": false,
+    "remove_trailing_whitespace_on_save": true,
+    "theme": {
+        "dark": "Modus Vivendi Tinted",
+        "light": "Modus Operandi Tinted",
+        "mode": "light"
+    }
 }

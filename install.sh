@@ -129,17 +129,19 @@ install_rtk_config() {
     fi
 }
 
+# mdformat (Markdown formatter used by the md-format Claude hook)
+install_mdformat() {
+    info "Installing mdformat..."
+    uv tool install mdformat --with mdformat-frontmatter
+}
+
 # Claude hooks
 install_claude_hooks() {
     info "Installing Claude hooks..."
 
     # Install mdformat via uv
     if ! command -v mdformat &>/dev/null; then
-        info "Installing mdformat..."
-        uv tool install mdformat
-    else
-        info "mdformat already installed"
-    fi
+        install_mdformat
 
     local target="$HOME/.local/bin/md-format"
     mkdir -p "$HOME/.local/bin"
@@ -182,8 +184,8 @@ main() {
         all)
             install_homebrew
             install_brew_packages
+            install_mdformat
             install_shell_config
-
             config_claude
             install_cursor_config
             install_ghostty_config
@@ -220,6 +222,9 @@ main() {
             ;;
         hooks)
             install_claude_hooks
+            ;;
+        mdformat)
+            install_mdformat
             ;;
         zed)
             install_zed_config
